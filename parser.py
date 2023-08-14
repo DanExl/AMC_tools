@@ -29,7 +29,7 @@ def get_pages(text:str):
 
 
 def df_from_xml(xml_path: str):
-  tree = etree.parse(path)
+  tree = etree.parse(xml_path)
   root = tree.getroot()
 
   data = []
