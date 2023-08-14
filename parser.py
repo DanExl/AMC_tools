@@ -1,5 +1,4 @@
 from lxml import etree
-import pandas as pd
 import re
 import numpy as np
 
