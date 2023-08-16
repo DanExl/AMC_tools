@@ -55,9 +55,10 @@ def df_from_xml(xml_path: str):
     data.append({"Source": source, "Date": date, "Start Page": start_page, "End Page": end_page, "Title": title, # create dict
                 "Content": content, "Ressorts": ressorts})
 
+  return pd.DataFrame(data)           # create df from dict
 
-  df = pd.DataFrame(data)           # create df from dict
-  return df
+def df_from_xmls(*xml_paths):
+  return pd.concat([df_from_xml(path) for path in xml_paths])
   
 
 def get_topics(df:pd.DataFrame):  # returns all unique topics from df
