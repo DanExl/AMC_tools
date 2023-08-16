@@ -33,12 +33,16 @@ def df_from_xml(xml_path: str):
   root = tree.getroot()
 
   data = []
-  for doc in root.findall("doc"):       # finding all articles
+  for doc in root.findall("doc"):         # finding all articles
+    if "dupl" in doc.attrib:              # if article is marked as duplicate (full or partial), it is discarded
+      continue
     source = doc.get("docsrc_name")       # getting source medium
     date = doc.get("datum")               # getting date
     start_page, end_page = get_pages(doc.get("bibl")) # getting page numbers
-    for field in doc.findall("field"):  # selecting fields
-      if field.get("name") == ("titel"):# if title: add up paragraphs and make title
+    for field in doc.findall("field"):    # selecting fields
+      if "dupl" in field.attrib:          # if field is marked as duplicate (full or partial), it is discarded
+        continue
+      if field.get("name") == ("titel"):  # if title: add up paragraphs and make title
         paragraphs = field.findall("p")
         paragraphs = [p.text.strip() for p in paragraphs]
         title = "\n".join(paragraphs)
@@ -54,3 +58,10 @@ def df_from_xml(xml_path: str):
 
   df = pd.DataFrame(data)           # create df from dict
   return df
+  
+
+def get_topics(df:pd.DataFrame):  # returns all unique topics from df
+  topics = set()
+  for topic in df["Ressorts"]:
+    topics.update(topic)
+  return topics
