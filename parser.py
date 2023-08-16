@@ -47,9 +47,11 @@ def df_from_xml(xml_path: str):
         paragraphs = [p.text.strip() for p in paragraphs]
         content = "\n".join(paragraphs)
     ressorts = set(doc.get("ressort2").split(" ")) # make set out of ressorts (so that intersections can be made efficiently)
-
-    data.append({"Source": source, "Date": date, "Start Page": start_page, "End Page": end_page, "Title": title, # create dict
+    try:
+      data.append({"Source": source, "Date": date, "Start Page": start_page, "End Page": end_page, "Title": title, # create dict
                 "Content": content, "Ressorts": ressorts})
+    except NameError:                     # occurs only for some documents without content but with titles
+      continue
 
   return pd.DataFrame(data)           # create df from dict
 
