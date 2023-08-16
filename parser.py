@@ -1,6 +1,7 @@
 from lxml import etree
 import re
 import numpy as np
+import pandas as pd
 
 
 def get_pages(text:str):
