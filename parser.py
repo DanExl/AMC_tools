@@ -57,7 +57,7 @@ def df_from_xml(xml_path: str):
 
   return pd.DataFrame(data)           # create df from dict
 
-def df_from_xmls(*xml_paths):
+def df_from_xmls(xml_paths:list[str]):
   return pd.concat([df_from_xml(path) for path in xml_paths])
   
 
