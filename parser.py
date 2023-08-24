@@ -32,59 +32,66 @@ def get_pages(text: str):  # uses RegEx to get page numbers from doc in amc
 def df_from_xml(xml_path: str, doc_id: bool, date: bool, source: bool, pages: bool, region: bool, mediatype: bool,
                 length: bool, ressorts: bool, mutation: bool, keys: bool, title: bool, content: bool) -> pd.DataFrame:
     # creates a pd.DataFrame from an amc xml
-
+    
     tree = etree.parse(xml_path)
     root = tree.getroot()
 
     data = []
     for doc in root.findall("doc"):  # finding all articles
 
-        if doc_id:
-            data.append({"doc id": doc.get("doc id")})  # getting doc id
+        doc_id_value = doc.get("doc id")  # getting doc id
+        date_value = pd.to_datetime(doc.get("datum"))
+        source_data = doc.get("docsrc_name")
+        start_page, end_page = get_pages(doc.get("bibl"))  # getting page numbers
+        region_data = doc.get("region")
+        mediatype_data = doc.get("mediatype")
+        length_value = int(doc.get("tokens"))
+        ressort_data = set(doc.get("ressort2").split(" "))  # make set out of ressorts (so that intersections 
+        # can be made efficiently)})
+        mutation_data = doc.get("mutation")
+        key_value = doc.get("keys")
+        for field in doc.findall("field"):  # selecting fields
+            if field.get("name") == "titel":  # if title: add up paragraphs and make title
+                paragraphs = field.findall("p")
+                paragraphs = [p.text.strip() for p in paragraphs]
+                title_data = "\n".join(paragraphs)
+            elif field.get("name") == "inhalt":  # if content: add up paragraphs to create the full text
+                paragraphs = field.findall("p")
+                paragraphs = [p.text.strip() for p in paragraphs]
+                content_data =  "\n".join(paragraphs)
+        data.append({"Doc ID": doc_id_value, "Date": date_value, "Source": source_data, "Start Page": start_page,
+        "End Page": end_page, "Region": region_data, "Mediatype": mediatype_data, "Length": length_value,
+        "Ressorts": ressort_data, "Mutation": mutation_data, "Keys": key_value,
+        "Title": title_data, "Content": content_data})
+    df = pd.DataFrame(data)  # create df from dict
 
-        if date:
-            data.append({"Date": pd.to_datetime(doc.get("datum"))})
-
-        if source:
-            data.append({"Source": doc.get("docsrc_name")})
-
-        if pages:
-            start_page, end_page = get_pages(doc.get("bibl"))  # getting page numbers
-            data.append({"Start Page": start_page, "End Page": end_page})
-
-        if region:
-            data.append({"Region": doc.get("region")})
-
-        if mediatype:
-            data.append({"Mediatype": doc.get("mediatype")})
-
-        if length:
-            data.append({"Length": int(doc.get("tokens"))})
-
-        if ressorts:
-            data.append({"Ressorts": set(doc.get("ressort2").split(
-                " "))})  # make set out of ressorts (so that intersections can be made efficiently)})
-
-        if mutation:
-            data.append({"Mutation": doc.get("mutation")})
-
-        if keys:
-            data.append({"Keys": doc.get("keys")})
-
-        if title or content:
-            for field in doc.findall("field"):  # selecting fields
-                if title:
-                    if field.get("name") == "titel":  # if title: add up paragraphs and make title
-                        paragraphs = field.findall("p")
-                        paragraphs = [p.text.strip() for p in paragraphs]
-                        data.append({"Title": "\n".join(paragraphs)})
-                elif field.get("name") == "inhalt":  # if content: add up paragraphs to create the full text
-                    if content:
-                        paragraphs = field.findall("p")
-                        paragraphs = [p.text.strip() for p in paragraphs]
-                        data.append({"Content": "\n".join(paragraphs)})
-
-    return pd.DataFrame(data)  # create df from dict
+    # removing all unwanted columns - there would definitely be a less dirty way to implement this 
+    # - feel free to make suggestions!
+    if not doc_id:
+        df.drop("Doc ID", inplace=True)   
+    if not date:
+        df.drop("Date", inplace=True)
+    if not source:
+        df.drop("Source", inplace=True)
+    if not pages:
+        df.drop(["Start Page", "End Page"], inplace=True)
+    if not region:
+        df.drop("Region", inplace=True)
+    if not mediatype:
+        df.drop("Mediatype", inplace=True)
+    if not length:
+        df.drop("Length", inplace=True)
+    if not ressorts:
+        df.drop("Ressorts", inplace=True)
+    if not mutation:
+        df.drop("Mutation", inplace=True)
+    if not keys:
+        df.drop("Keys", inplace=True)
+    if not title:
+        df.drop("Title", inplace=True)
+    if not content:
+        df.drop("Content", inplace=True)
+    return df
 
 
 def df_from_xmls(xml_paths: list[str], doc_id: bool = False, date: bool = True, source: bool = True, pages: bool = True,
