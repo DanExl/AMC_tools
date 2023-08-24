@@ -58,40 +58,44 @@ def df_from_xml(xml_path: str, doc_id: bool, date: bool, source: bool, pages: bo
             elif field.get("name") == "inhalt":  # if content: add up paragraphs to create the full text
                 paragraphs = field.findall("p")
                 paragraphs = [p.text.strip() for p in paragraphs]
-                content_data =  "\n".join(paragraphs)
-        data.append({"Doc ID": doc_id_value, "Date": date_value, "Source": source_data, "Start Page": start_page,
-        "End Page": end_page, "Region": region_data, "Mediatype": mediatype_data, "Length": length_value,
-        "Ressorts": ressort_data, "Mutation": mutation_data, "Keys": key_value,
-        "Title": title_data, "Content": content_data})
+                content_data = "\n".join(paragraphs)
+        try:
+            data.append({"Doc ID": doc_id_value, "Date": date_value, "Source": source_data, "Start Page": start_page,
+                     "End Page": end_page, "Region": region_data, "Mediatype": mediatype_data, "Length": length_value,
+                     "Ressorts": ressort_data, "Mutation": mutation_data, "Keys": key_value,
+                     "Title": title_data, "Content": content_data})
+        except NameError:
+            print("Missing Data, Article Skipped")
+            continue
     df = pd.DataFrame(data)  # create df from dict
-    
+
     # removing all unwanted columns - there would definitely be a less dirty way to implement this
     # - feel free to make suggestions!
     if not doc_id:
         df.drop("Doc ID", axis=1, inplace=True)
     if not date:
-        df.drop("Date", axis= 1, inplace=True)
+        df.drop("Date", axis=1, inplace=True)
     if not source:
-        df.drop("Source", axis= 1, inplace=True)
+        df.drop("Source", axis=1, inplace=True)
     if not pages:
-        df.drop(["Start Page", "End Page"], axis= 1, inplace=True)
+        df.drop(["Start Page", "End Page"], axis=1, inplace=True)
     if not region:
-        df.drop("Region", axis= 1, inplace=True)
+        df.drop("Region", axis=1, inplace=True)
     if not mediatype:
-        df.drop("Mediatype", axis= 1, inplace=True)
+        df.drop("Mediatype", axis=1, inplace=True)
     if not length:
-        df.drop("Length", axis= 1, inplace=True)
+        df.drop("Length", axis=1, inplace=True)
     if not ressorts:
-        df.drop("Ressorts", axis= 1, inplace=True)
+        df.drop("Ressorts", axis=1, inplace=True)
     if not mutation:
-        df.drop("Mutation", axis= 1, inplace=True)
+        df.drop("Mutation", axis=1, inplace=True)
     if not keys:
-        df.drop("Keys", axis= 1, inplace=True)
+        df.drop("Keys", axis=1, inplace=True)
     if not title:
-        df.drop("Title", axis= 1, inplace=True)
+        df.drop("Title", axis=1, inplace=True)
     if not content:
-        df.drop("Content", axis= 1, inplace=True)
-        
+        df.drop("Content", axis=1, inplace=True)
+
     return df
 
 
