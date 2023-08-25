@@ -29,8 +29,8 @@ def get_pages(text: str):  # uses RegEx to get page numbers from doc in amc
     return start_page, end_page
 
 
-def df_from_xml(xml_path: str, doc_id: bool, date: bool, source: bool, pages: bool, region: bool, mediatype: bool,
-                length: bool, ressorts: bool, mutation: bool, keys: bool, title: bool, content: bool) -> pd.DataFrame:
+def df_from_xml(xml_path: str, doc_id: bool=False, date: bool=True, source: bool=True, pages: bool=True, region: bool=False, mediatype: bool=False,
+                length: bool=False, ressorts: bool=True, mutation: bool=False, keys: bool=False, title: bool=True, content: bool=True) -> pd.DataFrame:
     # creates a pd.DataFrame from an amc xml
 
     tree = etree.parse(xml_path)
